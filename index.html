@@ -875,7 +875,38 @@
     }
 
     .practice-success { background-color: var(--secondary-soft); color: var(--secondary); border: 1px solid #99f6e4; }
-    .practice-retry { backgr  <div class="container">
+    .practice-retry { background-color: #fffbeb; color: #d97706; border: 1px solid #fef3c7; }
+
+    /* スマートフォン向けレスポンシブ対応 */
+    @media (max-width: 768px) {
+      header {
+        padding: 16px;
+      }
+      .header-title-area h1 {
+        font-size: 20px;
+      }
+      .stage-card {
+        padding: 16px;
+      }
+      .simulation-card, .card {
+        padding: 16px;
+      }
+      textarea {
+        height: 80px;
+      }
+      th, td {
+        padding: 8px 10px;
+        font-size: 12px;
+      }
+      .result-placeholder {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
     <!-- ヘッダー -->
     <header>
       <div class="header-title-area">
