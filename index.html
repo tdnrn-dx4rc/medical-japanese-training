@@ -120,6 +120,46 @@
       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
 
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .lang-selector-container {
+      display: flex;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      padding: 6px 12px;
+      border-radius: 20px;
+      gap: 6px;
+      color: white;
+      transition: var(--transition);
+    }
+
+    .lang-selector-container:hover {
+      background: rgba(255, 255, 255, 0.25);
+      border-color: rgba(255, 255, 255, 0.4);
+    }
+
+    .lang-selector-container select {
+      background: transparent;
+      border: none;
+      color: white;
+      font-size: 13px;
+      font-weight: 600;
+      outline: none;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .lang-selector-container select option {
+      background-color: #1e40af;
+      color: white;
+    }
+
     /* 学習ステージ選択 */
     .stage-section {
       display: flex;
@@ -835,46 +875,25 @@
     }
 
     .practice-success { background-color: var(--secondary-soft); color: var(--secondary); border: 1px solid #99f6e4; }
-    .practice-retry { background-color: #fffbeb; color: #d97706; border: 1px solid #fef3c7; }
-
-    /* スマートフォン向けレスポンシブ対応 */
-    @media (max-width: 768px) {
-      header {
-        padding: 16px;
-      }
-      .header-title-area h1 {
-        font-size: 20px;
-      }
-      .stage-card {
-        padding: 16px;
-      }
-      .simulation-card, .card {
-        padding: 16px;
-      }
-      textarea {
-        height: 80px;
-      }
-      th, td {
-        padding: 8px 10px;
-        font-size: 12px;
-      }
-      .result-placeholder {
-        display: none;
-      }
-    }
-  </style>
-</head>
-<body>
-
-  <div class="container">
+    .practice-retry { backgr  <div class="container">
     <!-- ヘッダー -->
     <header>
       <div class="header-title-area">
-        <h1><i data-lucide="heart-pulse"></i>医学日本語対話シミュレーター</h1>
-        <p>AIの日本語問いかけに多言語で答えて、臨床日本語へステップアップ</p>
+        <h1><i data-lucide="heart-pulse"></i><span data-i18n="app_title">医学日本語対話シミュレーター</span></h1>
+        <p data-i18n="app_desc">AIの日本語問いかけに多言語で答えて、臨床日本語へステップアップ</p>
       </div>
-      <div class="badge-bolivia">
-        Bolivia 🇧🇴 ➔ 🇯🇵 Japan
+      <div class="header-actions">
+        <div class="lang-selector-container">
+          <i data-lucide="globe" style="width:16px; height:16px;"></i>
+          <select id="lang-selector" onchange="changeLanguage(this.value)">
+            <option value="es">Español</option>
+            <option value="en">English</option>
+            <option value="ja">日本語</option>
+          </select>
+        </div>
+        <div class="badge-bolivia">
+          Bolivia 🇧🇴 ➔ 🇯🇵 Japan
+        </div>
       </div>
     </header>
 
@@ -882,23 +901,23 @@
     <div class="stage-section">
       <div class="section-title">
         <i data-lucide="graduation-cap"></i>
-        <span>学習ステージを選択してください</span>
+        <span data-i18n="select_stage">学習ステージを選択してください</span>
       </div>
       <div class="stage-grid">
         <div class="stage-card active" data-stage="1" onclick="selectStage('1')">
           <span class="stage-badge stage-1-badge">Stage 1</span>
-          <h3>（１）病状の聴取</h3>
-          <p>患者が訴える主訴や症状を聴き取り、スペイン語、英語、または簡単な日本語で返答して、詳細な状況を引き出す練習をします。</p>
+          <h3 data-i18n="stage1_title">Stage 1: 病状の聴取</h3>
+          <p data-i18n="stage1_desc">患者が訴える主訴や症状を聴き取り、スペイン語、英語、または簡単な日本語で返答して、詳細な状況を引き出す練習をします。</p>
         </div>
         <div class="stage-card" data-stage="2" onclick="selectStage('2')">
           <span class="stage-badge stage-2-badge">Stage 2</span>
-          <h3>（２）患者への説明</h3>
-          <p>検査説明、診断結果、治療方針（インフォームドコンセント）などを、患者にわかりやすい日本語で説明する練習をします。</p>
+          <h3 data-i18n="stage2_title">Stage 2: 患者への説明</h3>
+          <p data-i18n="stage2_desc">検査説明、診断結果、治療方針（インフォームドコンセント）などを、患者にわかりやすい日本語で説明する練習をします。</p>
         </div>
         <div class="stage-card" data-stage="3" onclick="selectStage('3')">
           <span class="stage-badge stage-3-badge">Stage 3</span>
-          <h3>（３）医師同士のコミュニケーション</h3>
-          <p>症例の申し送り、カンファレンスでの意見交換、他科への対診（コンサルテーション）など、医療従事者間での的確な報告と言葉遣いを学びます。</p>
+          <h3 data-i18n="stage3_title">Stage 3: 医師同士のコミュニケーション</h3>
+          <p data-i18n="stage3_desc">症例の申し送り、カンファレンスでの意見交換、他科への対診（コンサルテーション）など、医療従事者間での的確な報告と言葉遣いを学びます。</p>
         </div>
       </div>
     </div>
@@ -907,10 +926,10 @@
     <div class="settings-panel">
       <div class="settings-title">
         <i data-lucide="settings"></i>
-        <span>問いかけ難易度設定</span>
+        <span data-i18n="settings_title">問いかけ難易度設定</span>
       </div>
       <div class="toggle-container">
-        <span class="toggle-label">テキスト表示モード</span>
+        <span class="toggle-label" data-i18n="text_mode_label">テキスト表示モード</span>
         <label class="switch">
           <input type="checkbox" id="mode-switch" checked onchange="toggleTextMode()">
           <span class="slider"></span>
@@ -930,16 +949,16 @@
         </div>
 
         <div class="step-indicator">
-          <div class="step-node active" id="step-1-indicator"><i data-lucide="volume-2"></i>1. 聞く</div>
-          <div class="step-node" id="step-2-indicator"><i data-lucide="edit-3"></i>2. 答える</div>
-          <div class="step-node" id="step-3-indicator"><i data-lucide="award"></i>3. リピート練習</div>
+          <div class="step-node active" id="step-1-indicator"><i data-lucide="volume-2"></i><span data-i18n="step_listen">1. 聞く</span></div>
+          <div class="step-node" id="step-2-indicator"><i data-lucide="edit-3"></i><span data-i18n="step_answer">2. 答える</span></div>
+          <div class="step-node" id="step-3-indicator"><i data-lucide="award"></i><span data-i18n="step_repeat">3. リピート練習</span></div>
         </div>
 
         <!-- 問いかけ開始ボタン (初期状態のみ表示) -->
         <div id="start-simulation-box" style="text-align: center; padding: 20px 0;">
           <button class="btn btn-primary" onclick="startNewQuestion()" style="font-size: 16px; padding: 14px 28px;">
             <i data-lucide="play-circle"></i>
-            <span>シミュレーションを開始する</span>
+            <span data-i18n="btn_start_sim">シミュレーションを開始する</span>
           </button>
         </div>
 
@@ -954,16 +973,16 @@
             <!-- テキスト非表示（音声のみ）モード -->
             <div class="question-text-hidden" id="question-text-hidden" style="display: none;">
               <i data-lucide="volume-x" style="display: inline-block; vertical-align: middle; margin-right: 6px;"></i>
-              耳で聴き取ってください（テキストは隠されています）
+              <span data-i18n="audio_only_desc">耳で聴き取ってください（テキストは隠されています）</span>
             </div>
 
             <div class="question-actions">
               <button class="btn btn-primary" onclick="speakQuestion()" style="padding: 8px 16px;">
                 <i data-lucide="volume-2"></i>
-                <span>問いかけを聴く</span>
+                <span data-i18n="btn_listen">問いかけを聴く</span>
               </button>
               <button class="btn btn-secondary" onclick="speakQuestion(0.8)" style="padding: 8px 12px; font-size: 12px;" title="ゆっくり再生">
-                <span>ゆっくり</span>
+                <span data-i18n="btn_slow">ゆっくり</span>
               </button>
             </div>
           </div>
@@ -971,7 +990,7 @@
           <!-- スペイン語・英語ヒント (折りたたみ) -->
           <div class="accordion">
             <div class="accordion-header" onclick="toggleAccordion('hint-accordion')">
-              <span><i data-lucide="help-circle" style="width: 14px; height: 14px; display:inline-block; vertical-align:middle; margin-right: 4px;"></i>対訳ヒント (Traducción de Ayuda)</span>
+              <span><i data-lucide="help-circle" style="width: 14px; height: 14px; display:inline-block; vertical-align:middle; margin-right: 4px;"></i><span data-i18n="hint_accordion_title">対訳ヒント (Traducción de Ayuda)</span></span>
               <i data-lucide="chevron-down" id="accordion-chevron"></i>
             </div>
             <div class="accordion-content" id="hint-accordion">
@@ -983,7 +1002,7 @@
 
         <!-- 学習者の回答エリア (初期は非表示) -->
         <div class="answer-box" id="answer-area" style="display: none;">
-          <label class="input-prompt-label" style="font-weight: 600;">
+          <label class="input-prompt-label" style="font-weight: 600;" data-i18n="answer_prompt_label">
             あなたの回答 (スペイン語、英語、日本語のどれでも回答OK):
           </label>
           
@@ -1003,7 +1022,7 @@
             </div>
             <button class="btn btn-primary" style="flex-grow: 1;" onclick="submitAnswer()">
               <i data-lucide="send"></i>
-              <span>回答を送信する</span>
+              <span data-i18n="btn_submit">回答を送信する</span>
             </button>
           </div>
         </div>
@@ -1012,7 +1031,7 @@
         <div class="practice-box" id="practice-area" style="display: none;">
           <div class="practice-title">
             <i data-lucide="repeat"></i>
-            <span>Step 3: 正しい臨床日本語で発話（リピート）練習しましょう</span>
+            <span data-i18n="practice_step_title">Step 3: 正しい臨床日本語で発話（リピート）練習しましょう</span>
           </div>
           <div class="practice-phrase" id="practice-phrase-text">
             臨床日本語表現
@@ -1020,12 +1039,12 @@
           <div style="display: flex; gap: 10px; align-items: center; margin-top: 8px;">
             <button class="btn btn-outline" onclick="speakPracticePhrase()">
               <i data-lucide="volume-2"></i>
-              <span>お手本を聴く</span>
+              <span data-i18n="btn_listen_model">お手本を聴く</span>
             </button>
             <button class="btn btn-mic" id="practice-mic-btn" onclick="togglePracticeRecognition()" title="マイクに向かって発音する">
               <i data-lucide="mic" id="practice-mic-icon"></i>
             </button>
-            <span style="font-size: 12px; color: var(--text-muted);">マイクを押して発音してください</span>
+            <span style="font-size: 12px; color: var(--text-muted);" data-i18n="practice_mic_desc">マイクを押して発音してください</span>
           </div>
 
           <div id="practice-feedback-box" class="practice-eval-box"></div>
@@ -1034,7 +1053,7 @@
         <!-- 次の問題ボタン (分析後に表示) -->
         <div id="next-action-box" style="display: none; justify-content: flex-end;">
           <button class="btn btn-primary" onclick="startNewQuestion()">
-            <span>次の問題に進む</span>
+            <span data-i18n="btn_next_question">次の問題に進む</span>
             <i data-lucide="arrow-right"></i>
           </button>
         </div>
@@ -1047,8 +1066,8 @@
         <!-- 初期プレースホルダー -->
         <div class="result-placeholder" id="result-placeholder">
           <i data-lucide="activity" style="width: 48px; height: 48px;"></i>
-          <h3>指導医のカルテ＆分析結果</h3>
-          <p>AIの問いかけに答えを送信すると、回答に応じた「対訳マトリクス」「臨床ワークフロー図」「詳細な日本語フィードバック」がここに生成されます。</p>
+          <h3 data-i18n="result_placeholder_title">指導医のカルテ＆分析結果</h3>
+          <p data-i18n="result_placeholder_desc">AIの問いかけに答えを送信すると、回答に応じた「対訳マトリクス」「臨床ワークフロー図」「詳細な日本語フィードバック」がここに生成されます。</p>
         </div>
 
         <!-- 結果表示用のコンテンツ（非表示） -->
@@ -1057,7 +1076,7 @@
           <!-- 音声合成フィードバック -->
           <div class="speech-player-box">
             <div>
-              <div class="lang-label label-ja-formal">音声フィードバック</div>
+              <div class="lang-label label-ja-formal" data-i18n="speech_feedback_label">音声フィードバック</div>
               <div class="speech-text-preview" id="speech-text-preview"></div>
             </div>
             <button class="btn-speak" id="speak-btn" onclick="toggleSpeechSynthesis()" title="音声を読み上げる">
@@ -1070,7 +1089,7 @@
             <div class="card-header">
               <div class="card-title">
                 <i data-lucide="languages"></i>
-                <span>医療用語・表現翻訳マトリクス</span>
+                <span data-i18n="matrix_title">医療用語・表現翻訳マトリクス</span>
               </div>
             </div>
             <div class="table-container">
@@ -1095,7 +1114,7 @@
             <div class="card-header">
               <div class="card-title">
                 <i data-lucide="git-fork"></i>
-                <span>臨床ワークフロー視覚化</span>
+                <span data-i18n="workflow_title">臨床ワークフロー視覚化</span>
               </div>
             </div>
             <div class="mermaid-container-wrapper">
@@ -1108,7 +1127,7 @@
             <div class="card-header">
               <div class="card-title">
                 <i data-lucide="award"></i>
-                <span>指導医のアドバイス & 解説</span>
+                <span data-i18n="critique_title">指導医のアドバイス & 解説</span>
               </div>
             </div>
             <div class="feedback-content" id="feedback-detail">
@@ -1138,6 +1157,7 @@
 
     // 状態管理
     const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyQtIt9qnnPuDT-Hxci7ovPCUV27G-ZfbvUdCb_XYD9mJfOPBxn9Cf__urnEn7_bq0f5w/exec";
+    let currentLang = 'es'; // デフォルトはスペイン語
     let currentStage = '1';
     let isTextMode = true; // テキストありモード
     let currentQuestion = null;
@@ -1149,6 +1169,202 @@
     let speechUtterance = null;
     let lastAnalysisResult = null;
 
+    // UI翻訳定義
+    const translations = {
+      ja: {
+        app_title: "医学日本語対話シミュレーター",
+        app_desc: "AIの日本語問いかけに多言語で答えて、臨床日本語へステップアップ",
+        select_stage: "学習ステージを選択してください",
+        stage1_title: "Stage 1: 病状の聴取",
+        stage1_desc: "患者が訴える主訴や症状を聴き取り、スペイン語、英語、または簡単な日本語で返答して、詳細な状況を引き出す練習をします。",
+        stage2_title: "Stage 2: 患者への説明",
+        stage2_desc: "検査説明、診断結果、治療方針（インフォームドコンセント）などを、患者にわかりやすい日本語で説明する練習をします。",
+        stage3_title: "Stage 3: 医師同士のコミュニケーション",
+        stage3_desc: "症例の申し送り、カンファレンスでの意見交換、他科への対診（コンサルテーション）など、医療従事者間での的確な報告と言葉遣いを学びます。",
+        settings_title: "問いかけ難易度設定",
+        text_mode_label: "テキスト表示モード",
+        text_mode_status: "テキストあり（初級）",
+        audio_mode_status: "音声のみ（上級）",
+        step_listen: "1. 聞く",
+        step_answer: "2. 答える",
+        step_repeat: "3. リピート練習",
+        btn_start_sim: "シミュレーションを開始する",
+        audio_only_desc: "耳で聴き取ってください（テキストは隠されています）",
+        btn_listen: "問いかけを聴く",
+        btn_slow: "ゆっくり",
+        hint_accordion_title: "対訳ヒント (Traducción de Ayuda)",
+        answer_prompt_label: "あなたの回答 (スペイン語、英語、日本語のどれでも回答OK):",
+        btn_submit: "回答を送信する",
+        practice_step_title: "Step 3: 正しい臨床日本語で発話（リピート）練習しましょう",
+        btn_listen_model: "お手本を聴く",
+        practice_mic_desc: "マイクを押して発音してください",
+        btn_next_question: "次の問題に進む",
+        result_placeholder_title: "指導医のカルテ＆分析結果",
+        result_placeholder_desc: "AIの問いかけに答えを送信すると、回答に応じた「対訳マトリクス」「臨床ワークフロー図」「詳細な日本語フィードバック」がここに生成されます。",
+        speech_feedback_label: "音声フィードバック",
+        matrix_title: "医療用語・表現翻訳マトリクス",
+        workflow_title: "臨床ワークフロー視覚化",
+        critique_title: "指導医のアドバイス & 解説",
+        loading_question: "問題となる問いかけを生成中...",
+        loading_analysis: "AIが発話を分析中...",
+        error_no_gas: "【初期設定エラー】\nGAS_WEB_APP_URL が設定されていません。\nHTMLファイルの該当URL部分をデプロイしたURLに書き換えてください。",
+        label_pronunciation: "発音・流暢さ",
+        label_grammar: "文法・表現の適切さ",
+        label_medical: "医学用語の正確性",
+        label_overall: "総合評価",
+        label_model_answer: "模範解答例",
+        label_critique: "総合講評",
+        label_practice: "ステップアップ練習",
+        scene_desc: "場面説明"
+      },
+      en: {
+        app_title: "Medical Japanese Dialogue Simulator",
+        app_desc: "Answer AI's Japanese inquiries in multiple languages to step up to clinical Japanese",
+        select_stage: "Please select a learning stage",
+        stage1_title: "Stage 1: Taking Medical History",
+        stage1_desc: "Practice listening to patients' main complaints/symptoms and reply in Spanish, English, or simple Japanese to elicit details.",
+        stage2_title: "Stage 2: Explaining to Patients",
+        stage2_desc: "Practice explaining tests, diagnostic results, and treatment plans (informed consent) in patient-friendly Japanese.",
+        stage3_title: "Stage 3: Professional Communication",
+        stage3_desc: "Learn proper reporting and wording among healthcare professionals, such as patient handoffs, conferences, and consultations.",
+        settings_title: "Inquiry Difficulty Settings",
+        text_mode_label: "Text Display Mode",
+        text_mode_status: "Text visible (Beginner)",
+        audio_mode_status: "Audio only (Advanced)",
+        step_listen: "1. Listen",
+        step_answer: "2. Answer",
+        step_repeat: "3. Practice Repetition",
+        btn_start_sim: "Start Simulation",
+        audio_only_desc: "Listen with your ears (text is hidden)",
+        btn_listen: "Listen to Inquiry",
+        btn_slow: "Slow",
+        hint_accordion_title: "Translation Hints",
+        answer_prompt_label: "Your Answer (Spanish, English, or Japanese is OK):",
+        btn_submit: "Submit Answer",
+        practice_step_title: "Step 3: Practice speaking in correct clinical Japanese",
+        btn_listen_model: "Listen to Model",
+        practice_mic_desc: "Tap the mic and speak",
+        btn_next_question: "Next Question",
+        result_placeholder_title: "Supervisor's Chart & AI Analysis",
+        result_placeholder_desc: "Submit your answer to see the Translation Matrix, Clinical Workflow Diagram, and detailed Japanese feedback here.",
+        speech_feedback_label: "Voice Feedback",
+        matrix_title: "Medical Terminology & Phrase Translation Matrix",
+        workflow_title: "Clinical Workflow Visualization",
+        critique_title: "Clinical Supervisor's Advice & Commentary",
+        loading_question: "Generating clinical inquiry...",
+        loading_analysis: "AI is analyzing your utterance...",
+        error_no_gas: "[Configuration Error] GAS_WEB_APP_URL is not set. Please set the Web App URL in index.html.",
+        label_pronunciation: "Pronunciation & Fluency",
+        label_grammar: "Grammar & Appropriateness",
+        label_medical: "Accuracy of Medical Terms",
+        label_overall: "Overall Evaluation",
+        label_model_answer: "Model Answer",
+        label_critique: "General Critique",
+        label_practice: "Step-up Practice Phrase",
+        scene_desc: "Scene Description"
+      },
+      es: {
+        app_title: "Simulador de Diálogo de Japonés Médico",
+        app_desc: "Responda a las preguntas en japonés de la IA en varios idiomas para mejorar su japonés clínico",
+        select_stage: "Por favor seleccione una etapa de aprendizaje",
+        stage1_title: "Etapa 1: Toma de Historial Médico",
+        stage1_desc: "Practique escuchar las quejas principales y síntomas de los pacientes, y responda en español, inglés o japonés simple para obtener detalles.",
+        stage2_title: "Etapa 2: Explicación a Pacientes",
+        stage2_desc: "Practique la explicación de pruebas, resultados diagnósticos y planes de tratamiento (consentimiento informado) en un japonés fácil de entender.",
+        stage3_title: "Etapa 3: Comunicación Profesional",
+        stage3_desc: "Aprenda el reporte y vocabulario adecuado entre profesionales médicos, como entrega de turnos, discusiones y consultas.",
+        settings_title: "Configuración de Dificultad de Preguntas",
+        text_mode_label: "Modo de Visualización de Texto",
+        text_mode_status: "Texto visible (Principiante)",
+        audio_mode_status: "Solo audio (Avanzado)",
+        step_listen: "1. Escuchar",
+        step_answer: "2. Responder",
+        step_repeat: "3. Práctica de Repetición",
+        btn_start_sim: "Iniciar Simulación",
+        audio_only_desc: "Escuche atentamente (el texto está oculto)",
+        btn_listen: "Escuchar Pregunta",
+        btn_slow: "Lento",
+        hint_accordion_title: "Pistas de Traducción",
+        answer_prompt_label: "Su Respuesta (Se acepta español, inglés o japonés):",
+        btn_submit: "Enviar Respuesta",
+        practice_step_title: "Paso 3: Practique hablar en japonés clínico correcto",
+        btn_listen_model: "Escuchar Modelo",
+        practice_mic_desc: "Presione el micrófono y hable",
+        btn_next_question: "Siguiente Pregunta",
+        result_placeholder_title: "Expediente del Supervisor y Análisis de IA",
+        result_placeholder_desc: "Envíe su respuesta para ver la Matriz de Traducción, Diagrama de Flujo Clínico y comentarios detallados sobre su japonés aquí.",
+        speech_feedback_label: "Comentarios de Voz",
+        matrix_title: "Matriz de Traducción de Términos Médicos y Frases",
+        workflow_title: "Visualización del Flujo Clínico",
+        critique_title: "Consejo y Comentario del Supervisor Clínico",
+        loading_question: "Generando pregunta clínica...",
+        loading_analysis: "La IA está analizando su pronunciación...",
+        error_no_gas: "[Error de Configuración] GAS_WEB_APP_URL no está configurado. Por favor configure la URL en index.html.",
+        label_pronunciation: "Pronunciación y Fluidez",
+        label_grammar: "Gramática y Adecuación",
+        label_medical: "Precisión de Términos Médicos",
+        label_overall: "Evaluación General",
+        label_model_answer: "Ejemplo de Respuesta Modelo",
+        label_critique: "Crítica General",
+        label_practice: "Frase de Práctica Recomendada",
+        scene_desc: "Descripción de la Escena"
+      }
+    };
+
+    // 言語切り替え処理
+    function changeLanguage(lang) {
+      currentLang = lang;
+      setLanguage(lang);
+    }
+
+    function setLanguage(lang) {
+      const trans = translations[lang] || translations['es'];
+      
+      // data-i18n属性を持つ要素のテキストを一括更新
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (trans[key]) {
+          el.innerText = trans[key];
+        }
+      });
+
+      // プレースホルダーの更新
+      const responseInput = document.getElementById('user-response-input');
+      if (responseInput) {
+        if (lang === 'es') {
+          responseInput.placeholder = "Ej: Me duele mucho la cabeza... / I have a fever... / 頭が痛いです。";
+        } else if (lang === 'en') {
+          responseInput.placeholder = "e.g. My head hurts... / I have a fever... / 頭が痛いです。";
+        } else {
+          responseInput.placeholder = "例: 頭が痛いです。 / Me duele mucho la cabeza...";
+        }
+      }
+
+      // ドロップダウンの選択値を同期
+      const selector = document.getElementById('lang-selector');
+      if (selector) selector.value = lang;
+
+      // 現在選択されているステージタイトルの表示更新
+      const stageNames = {
+        '1': trans['stage1_title'] || 'Stage 1',
+        '2': trans['stage2_title'] || 'Stage 2',
+        '3': trans['stage3_title'] || 'Stage 3'
+      };
+      const titleTextEl = document.getElementById('stage-title-text');
+      if (titleTextEl && stageNames[currentStage]) {
+        titleTextEl.innerText = stageNames[currentStage];
+      }
+
+      // 場面説明等の動的翻訳
+      const sceneTextEl = document.getElementById('question-scene-text');
+      if (sceneTextEl && currentQuestion) {
+        sceneTextEl.innerText = `${trans['scene_desc']}: ${currentQuestion.context_description}`;
+      }
+
+      // 難易度表示の更新
+      toggleTextMode();
+    }
+
     // 初期化処理
     window.addEventListener('DOMContentLoaded', () => {
       try {
@@ -1156,6 +1372,9 @@
         if (typeof lucide !== 'undefined') {
           lucide.createIcons();
         }
+
+        // 初期言語の設定（スペイン語）
+        setLanguage('es');
 
         // Web Speech API 音声認識の初期化
         initSpeechRecognition();
@@ -1184,8 +1403,16 @@
       });
       document.querySelector(`.stage-card[data-stage="${stage}"]`).classList.add('active');
 
-      const stageNames = { '1': 'Stage 1: 病状の聴取', '2': 'Stage 2: 患者への説明', '3': 'Stage 3: 医師同士のコミュニケーション' };
-      document.getElementById('stage-title-text').innerText = stageNames[stage];
+      const trans = translations[currentLang] || translations['es'];
+      const stageNames = {
+        '1': trans['stage1_title'] || 'Stage 1',
+        '2': trans['stage2_title'] || 'Stage 2',
+        '3': trans['stage3_title'] || 'Stage 3'
+      };
+      const titleTextEl = document.getElementById('stage-title-text');
+      if (titleTextEl && stageNames[stage]) {
+        titleTextEl.innerText = stageNames[stage];
+      }
 
       // シミュレーション状態のリセット
       resetSimulationUI();
@@ -1195,15 +1422,16 @@
     function toggleTextMode() {
       isTextMode = document.getElementById('mode-switch').checked;
       const statusText = document.getElementById('mode-status-text');
+      const trans = translations[currentLang] || translations['es'];
       
       if (isTextMode) {
-        statusText.innerText = 'テキストあり（初級）';
+        statusText.innerText = trans['text_mode_status'] || 'テキストあり';
         if (currentQuestion) {
           document.getElementById('question-text-display').style.display = 'block';
           document.getElementById('question-text-hidden').style.display = 'none';
         }
       } else {
-        statusText.innerText = '音声のみ（上級）';
+        statusText.innerText = trans['audio_mode_status'] || '音声のみ';
         if (currentQuestion) {
           document.getElementById('question-text-display').style.display = 'none';
           document.getElementById('question-text-hidden').style.display = 'block';
@@ -1248,7 +1476,8 @@
         updateLucideIcon('speak-icon', 'play');
       }
 
-      showLoader(true, '問題となる問いかけを生成中...');
+      const trans = translations[currentLang] || translations['es'];
+      showLoader(true, trans['loading_question'] || 'Generating...');
       
       // 入力初期化
       document.getElementById('user-response-input').value = '';
@@ -1256,9 +1485,9 @@
       document.getElementById('practice-area').style.display = 'none';
       document.getElementById('next-action-box').style.display = 'none';
 
-      if (GAS_WEB_APP_URL.includes('ここにGASのWebアプリURL')) {
+      if (GAS_WEB_APP_URL.includes('ここにGASのWebアプリURL') || GAS_WEB_APP_URL.includes('【ここにGAS')) {
         showLoader(false);
-        alert('【初期設定エラー】\nGAS_WEB_APP_URL が設定されていません。\nHTMLファイルの1140行目付近にあるURLを、GASでデプロイしたWebアプリURLに書き換えてください。');
+        alert(trans['error_no_gas'] || 'Error: GAS_WEB_APP_URL not set.');
         return;
       }
 
@@ -1279,8 +1508,10 @@
     // 問いかけ生成成功コールバック
     function onQuestionGenerated(response) {
       showLoader(false);
+      const trans = translations[currentLang] || translations['es'];
       if (!response.success) {
-        alert('問いかけ生成エラー: ' + response.error);
+        const errMsg = currentLang === 'es' ? 'Error al generar la pregunta: ' : (currentLang === 'en' ? 'Inquiry generation error: ' : '問いかけ生成エラー: ');
+        alert(errMsg + response.error);
         return;
       }
 
@@ -1292,7 +1523,7 @@
       document.getElementById('answer-area').style.display = 'flex';
 
       // 場面説明と問いかけテキスト設定
-      document.getElementById('question-scene-text').innerText = '場面: ' + currentQuestion.context_description;
+      document.getElementById('question-scene-text').innerText = `${trans['scene_desc'] || 'Scene'}: ${currentQuestion.context_description}`;
       document.getElementById('question-text-display').innerText = currentQuestion.question_text;
       
       // 対訳ヒント設定
@@ -1315,7 +1546,9 @@
 
     function onQuestionFailure(error) {
       showLoader(false);
-      alert('GAS通信エラー（問いかけ生成）: ' + error.toString());
+      const trans = translations[currentLang] || translations['es'];
+      const errMsg = currentLang === 'es' ? 'Error de comunicación con GAS (generación): ' : (currentLang === 'en' ? 'GAS communication error (generation): ' : 'GAS通信エラー（問いかけ生成）: ');
+      alert(errMsg + error.toString());
     }
 
     // 問いかけを読み上げる
@@ -1340,17 +1573,19 @@
     // 2. 回答を送信して分析
     async function submitAnswer() {
       const userResponse = document.getElementById('user-response-input').value.trim();
+      const trans = translations[currentLang] || translations['es'];
       if (!userResponse) {
-        alert('回答を入力またはマイクで発話してください。');
+        const msg = currentLang === 'es' ? 'Por favor, ingrese o hable su respuesta.' : (currentLang === 'en' ? 'Please enter or speak your answer.' : '回答を入力またはマイクで発話してください。');
+        alert(msg);
         return;
       }
 
-      if (GAS_WEB_APP_URL.includes('ここにGASのWebアプリURL')) {
-        alert('エラー: GAS_WEB_APP_URLが設定されていません。');
+      if (GAS_WEB_APP_URL.includes('ここにGASのWebアプリURL') || GAS_WEB_APP_URL.includes('【ここにGAS')) {
+        alert(trans['error_no_gas'] || 'Error: GAS_WEB_APP_URL not set.');
         return;
       }
 
-      showLoader(true, '回答を分析中...');
+      showLoader(true, trans['loading_analysis'] || 'Analyzing...');
 
       try {
         const response = await fetch(GAS_WEB_APP_URL, {
@@ -1374,8 +1609,10 @@
     // 回答分析成功コールバック
     function onAnswerAnalyzed(response) {
       showLoader(false);
+      const trans = translations[currentLang] || translations['es'];
       if (!response.success) {
-        alert('分析エラー: ' + response.error);
+        const errMsg = currentLang === 'es' ? 'Error de análisis: ' : (currentLang === 'en' ? 'Analysis error: ' : '分析エラー: ');
+        alert(errMsg + response.error);
         return;
       }
 
@@ -1410,10 +1647,28 @@
       renderMermaidChart(result.mermaid_graph);
 
       // 4. フィードバック解説（Markdown）
+      // バックエンドが返すMarkdown（見出しなど）の言語ローカライズのために、簡単なヘッダ置換をフロント側で施す
+      let feedbackHtml = result.feedback;
+      if (currentLang !== 'ja') {
+        // 日本語ラベルをローカライズ
+        const labelMap = {
+          '#### 総合評価': `#### ${trans['label_overall']}`,
+          '#### 発音・流暢さ': `#### ${trans['label_pronunciation']}`,
+          '#### 文法・表現の適切さ': `#### ${trans['label_grammar']}`,
+          '#### 医学用語の正確性': `#### ${trans['label_medical']}`,
+          '#### 模範解答例': `#### ${trans['label_model_answer']}`,
+          '#### 総合講評': `#### ${trans['label_critique']}`,
+          '#### ステップアップ練習': `#### ${trans['label_practice']}`
+        };
+        for (const [jpLabel, localizedLabel] of Object.entries(labelMap)) {
+          feedbackHtml = feedbackHtml.replaceAll(jpLabel, localizedLabel);
+        }
+      }
+
       if (typeof marked !== 'undefined') {
-        document.getElementById('feedback-detail').innerHTML = marked.parse(result.feedback);
+        document.getElementById('feedback-detail').innerHTML = marked.parse(feedbackHtml);
       } else {
-        document.getElementById('feedback-detail').innerText = result.feedback;
+        document.getElementById('feedback-detail').innerText = feedbackHtml;
       }
 
       // 5. ステップアップ練習エリアの表示と初期化
@@ -1428,9 +1683,12 @@
       toggleSpeechSynthesis();
     }
 
+    // 回答分析失敗コールバック
     function onAnswerAnalysisFailure(error) {
       showLoader(false);
-      alert('GAS通信エラー（回答分析）: ' + error.toString());
+      const trans = translations[currentLang] || translations['es'];
+      const errMsg = currentLang === 'es' ? 'Error de comunicación con GAS (análisis): ' : (currentLang === 'en' ? 'GAS communication error (analysis): ' : 'GAS通信エラー（回答分析）: ');
+      alert(errMsg + error.toString());
     }
 
     // 3. ステップアップ練習：お手本の読み上げ
@@ -1459,18 +1717,46 @@
       // 完全一致、部分一致の判定
       if (cleanedSpoken === targetText) {
         evalBox.className = 'practice-eval-box practice-success';
-        evalBox.innerHTML = `<i data-lucide="check-circle" style="display:inline-block; vertical-align:middle; width: 16px; height: 16px; margin-right:4px;"></i>
-          <strong>素晴らしい発音です！</strong> お手本通りに正しく発音できています。`;
+        if (currentLang === 'es') {
+          evalBox.innerHTML = `<i data-lucide="check-circle" style="display:inline-block; vertical-align:middle; width: 16px; height: 16px; margin-right:4px;"></i>
+            <strong>¡Excelente pronunciación!</strong> Se pronunció correctamente tal como el modelo.`;
+        } else if (currentLang === 'en') {
+          evalBox.innerHTML = `<i data-lucide="check-circle" style="display:inline-block; vertical-align:middle; width: 16px; height: 16px; margin-right:4px;"></i>
+            <strong>Excellent pronunciation!</strong> Pronounced correctly just like the model.`;
+        } else {
+          evalBox.innerHTML = `<i data-lucide="check-circle" style="display:inline-block; vertical-align:middle; width: 16px; height: 16px; margin-right:4px;"></i>
+            <strong>素晴らしい発音です！</strong> お手本通りに正しく発音できています。`;
+        }
       } else if (targetText.includes(cleanedSpoken) || cleanedSpoken.includes(targetText) || getSimilarity(cleanedSpoken, targetText) > 0.6) {
         evalBox.className = 'practice-eval-box practice-success';
-        evalBox.innerHTML = `<i data-lucide="check-circle" style="display:inline-block; vertical-align:middle; width: 16px; height: 16px; margin-right:4px;"></i>
-          <strong>ほぼ聞き取れました！</strong> 発音:「${spokenText}」<br>
-          日本の臨床現場で十分通じるレベルです。さらに練習してみましょう！`;
+        if (currentLang === 'es') {
+          evalBox.innerHTML = `<i data-lucide="check-circle" style="display:inline-block; vertical-align:middle; width: 16px; height: 16px; margin-right:4px;"></i>
+            <strong>¡Casi se entendió!</strong> Pronunciación: "${spokenText}"<br>
+            Es un nivel suficiente para comunicarse en el entorno clínico de Japón. ¡Sigamos practicando!`;
+        } else if (currentLang === 'en') {
+          evalBox.innerHTML = `<i data-lucide="check-circle" style="display:inline-block; vertical-align:middle; width: 16px; height: 16px; margin-right:4px;"></i>
+            <strong>Almost understood!</strong> Pronunciation: "${spokenText}"<br>
+            It is a sufficient level to be understood in Japanese clinical settings. Let's keep practicing!`;
+        } else {
+          evalBox.innerHTML = `<i data-lucide="check-circle" style="display:inline-block; vertical-align:middle; width: 16px; height: 16px; margin-right:4px;"></i>
+            <strong>ほぼ聞き取れました！</strong> 発音:「${spokenText}」<br>
+            日本の臨床現場で十分通じるレベルです。さらに練習してみましょう！`;
+        }
       } else {
         evalBox.className = 'practice-eval-box practice-retry';
-        evalBox.innerHTML = `<i data-lucide="help-circle" style="display:inline-block; vertical-align:middle; width: 16px; height: 16px; margin-right:4px;"></i>
-          認識された発音:「${spokenText}」<br>
-          もう少しお手本に近づけてみましょう。もう一度マイクボタンを押して発音してください。`;
+        if (currentLang === 'es') {
+          evalBox.innerHTML = `<i data-lucide="help-circle" style="display:inline-block; vertical-align:middle; width: 16px; height: 16px; margin-right:4px;"></i>
+            Pronunciación reconocida: "${spokenText}"<br>
+            Intentemos acercarnos un poco más al modelo. Presione el botón del micrófono y hable de nuevo.`;
+        } else if (currentLang === 'en') {
+          evalBox.innerHTML = `<i data-lucide="help-circle" style="display:inline-block; vertical-align:middle; width: 16px; height: 16px; margin-right:4px;"></i>
+            Recognized pronunciation: "${spokenText}"<br>
+            Let's try to get a bit closer to the model. Press the microphone button and try again.`;
+        } else {
+          evalBox.innerHTML = `<i data-lucide="help-circle" style="display:inline-block; vertical-align:middle; width: 16px; height: 16px; margin-right:4px;"></i>
+            認識された発音:「${spokenText}」<br>
+            もう少しお手本に近づけてみましょう。もう一度マイクボタンを押して発音してください。`;
+        }
       }
       if (typeof lucide !== 'undefined') {
         lucide.createIcons();
