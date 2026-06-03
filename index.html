@@ -1,0 +1,1810 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>医学日本語対話シミュレーター - Medical Japanese Simulation</title>
+  <!-- Google Fonts: Inter & Noto Sans JP -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Marked.js CDN (Markdown parser) -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <!-- Mermaid.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+
+  <style>
+    :root {
+      --primary: #1e40af;       /* 信頼感のある医療ディープブルー */
+      --primary-light: #3b82f6; /* 明るいブルー */
+      --primary-soft: #eff6ff;  /* 非常に薄いブルー背景 */
+      --secondary: #0d9488;     /* 清潔感のあるエメラルド */
+      --secondary-soft: #f0fdfa;/* 薄いエメラルド背景 */
+      --warning: #f59e0b;       /* ステップアップ練習用オレンジ */
+      --warning-soft: #fef3c7;
+      --danger: #ef4444;        /* 警告/停止 */
+      --danger-soft: #fef2f2;
+      --text-main: #1e293b;     /* メインテキスト */
+      --text-muted: #64748b;    /* 補助テキスト */
+      --bg-app: #f8fafc;        /* アプリ背景 */
+      --card-bg: #ffffff;
+      --border-color: #e2e8f0;
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
+      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.05), 0 4px 6px -2px rgba(0,0,0,0.03);
+      --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', 'Noto Sans JP', sans-serif;
+      background-color: var(--bg-app);
+      color: var(--text-main);
+      line-height: 1.6;
+      padding: 24px 16px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1200px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    /* ヘッダーデザイン */
+    header {
+      background: linear-gradient(135deg, var(--primary) 0%, #1d4ed8 100%);
+      color: white;
+      padding: 32px;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    header::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -20%;
+      width: 300px;
+      height: 300px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .header-title-area h1 {
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .header-title-area p {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.85);
+      margin-top: 4px;
+    }
+
+    .badge-bolivia {
+      background: linear-gradient(90deg, #de212b 0%, #f9d923 50%, #008744 100%);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #000;
+      text-shadow: 0 0 1px white;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    /* 学習ステージ選択 */
+    .stage-section {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .section-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .stage-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 16px;
+    }
+
+    .stage-card {
+      background-color: var(--card-bg);
+      border: 2px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      cursor: pointer;
+      box-shadow: var(--shadow-sm);
+      transition: var(--transition);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      position: relative;
+    }
+
+    .stage-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--primary-light);
+      box-shadow: var(--shadow-md);
+    }
+
+    .stage-card.active {
+      border-color: var(--primary);
+      background-color: var(--primary-soft);
+      box-shadow: var(--shadow-md);
+    }
+
+    .stage-card.active::before {
+      content: '';
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: var(--primary);
+    }
+
+    .stage-badge {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 12px;
+      align-self: flex-start;
+    }
+
+    .stage-1-badge { background-color: #dbeafe; color: #1e40af; }
+    .stage-2-badge { background-color: #ccfbf1; color: #0f766e; }
+    .stage-3-badge { background-color: #fef3c7; color: #92400e; }
+
+    .stage-card h3 {
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .stage-card p {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    /* 難易度・表示設定 */
+    .settings-panel {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 16px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .settings-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .toggle-container {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 50px;
+      height: 26px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #cbd5e1;
+      transition: .3s;
+      border-radius: 34px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      transition: .3s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider {
+      background-color: var(--primary);
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(24px);
+    }
+
+    .toggle-label {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-main);
+    }
+
+    /* ワークスペース */
+    .workspace-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+
+    @media (min-width: 1024px) {
+      .workspace-grid {
+        grid-template-columns: 5fr 5fr;
+      }
+    }
+
+    /* 左カラム: シミュレーション対話エリア */
+    .simulation-card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      box-shadow: var(--shadow-md);
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      height: fit-content;
+    }
+
+    .card-title-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--primary);
+    }
+
+    /* ステップ表示インジケーター */
+    .step-indicator {
+      display: flex;
+      justify-content: space-between;
+      border-bottom: 2px solid var(--border-color);
+      padding-bottom: 12px;
+      margin-bottom: 8px;
+    }
+
+    .step-node {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .step-node.active {
+      color: var(--primary);
+    }
+
+    .step-node.active i {
+      color: var(--primary);
+    }
+
+    /* AI問いかけボックス */
+    .question-box {
+      background: linear-gradient(135deg, var(--primary-soft) 0%, #dbeafe 100%);
+      border: 1px solid #bfdbfe;
+      border-radius: var(--radius-md);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      position: relative;
+    }
+
+    .question-scene {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--primary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .question-text-display {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-main);
+      line-height: 1.5;
+    }
+
+    .question-text-hidden {
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--text-muted);
+      font-style: italic;
+      background-color: rgba(255, 255, 255, 0.5);
+      padding: 10px;
+      border-radius: var(--radius-sm);
+      text-align: center;
+      border: 1px dashed #93c5fd;
+    }
+
+    .question-actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-top: 8px;
+    }
+
+    /* 折りたたみアコーディオン（ヒント） */
+    .accordion {
+      background-color: white;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+    }
+
+    .accordion-header {
+      padding: 10px 14px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #f8fafc;
+      user-select: none;
+    }
+
+    .accordion-header:hover {
+      background-color: #f1f5f9;
+    }
+
+    .accordion-content {
+      padding: 12px 14px;
+      font-size: 13px;
+      border-top: 1px solid var(--border-color);
+      display: none;
+      flex-direction: column;
+      gap: 6px;
+      background-color: white;
+    }
+
+    .accordion-content.show {
+      display: flex;
+    }
+
+    /* 回答入力エリア */
+    .answer-box {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    textarea {
+      width: 100%;
+      height: 120px;
+      padding: 14px;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      font-family: inherit;
+      font-size: 14px;
+      resize: vertical;
+      color: var(--text-main);
+      transition: var(--transition);
+      outline: none;
+    }
+
+    textarea:focus {
+      border-color: var(--primary-light);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 20px;
+      border-radius: var(--radius-md);
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      transition: var(--transition);
+      user-select: none;
+    }
+
+    .btn-primary {
+      background-color: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background-color: #1d4ed8;
+      box-shadow: var(--shadow-md);
+    }
+
+    .btn-primary:disabled {
+      background-color: var(--border-color);
+      color: var(--text-muted);
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .btn-secondary {
+      background-color: #f1f5f9;
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+    }
+
+    .btn-secondary:hover {
+      background-color: #e2e8f0;
+    }
+
+    .btn-outline {
+      background-color: transparent;
+      color: var(--primary);
+      border: 1px solid var(--primary);
+      padding: 8px 14px;
+      font-size: 13px;
+    }
+
+    .btn-outline:hover {
+      background-color: var(--primary-soft);
+    }
+
+    .btn-mic {
+      background-color: var(--primary-soft);
+      color: var(--primary);
+      width: 48px;
+      height: 48px;
+      padding: 0;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .btn-mic:hover {
+      background-color: #dbeafe;
+    }
+
+    .btn-mic.recording {
+      background-color: var(--danger);
+      color: white;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+      70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+    }
+
+    /* 日本語ステップアップ練習用（分析後に表示） */
+    .practice-box {
+      background: linear-gradient(135deg, var(--warning-soft) 0%, #fffbeb 100%);
+      border: 1px solid #fcd34d;
+      border-radius: var(--radius-md);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    .practice-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: #b45309;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .practice-phrase {
+      font-size: 20px;
+      font-weight: 700;
+      color: #78350f;
+      text-align: center;
+      background: white;
+      padding: 14px;
+      border-radius: var(--radius-sm);
+      border: 1px solid #fcd34d;
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* 右カラム: 結果・分析エリア */
+    .result-area {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .result-placeholder {
+      background-color: var(--card-bg);
+      border: 2px dashed var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 48px;
+      text-align: center;
+      color: var(--text-muted);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      height: 100%;
+      min-height: 400px;
+    }
+
+    .result-placeholder i {
+      color: var(--primary-light);
+    }
+
+    .card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      box-shadow: var(--shadow-md);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 12px;
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* 音声再生コントロール */
+    .speech-player-box {
+      background-color: var(--primary-soft);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .speech-text-preview {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-main);
+      font-style: italic;
+    }
+
+    .btn-speak {
+      background-color: var(--primary);
+      color: white;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: var(--transition);
+      flex-shrink: 0;
+    }
+
+    .btn-speak:hover {
+      background-color: #1d4ed8;
+      transform: scale(1.05);
+    }
+
+    .btn-speak.playing {
+      background-color: var(--danger);
+    }
+
+    /* 翻訳マトリクス */
+    .table-container {
+      overflow-x: auto;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-color);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 13px;
+    }
+
+    th {
+      background-color: #f1f5f9;
+      color: var(--text-main);
+      font-weight: 600;
+      padding: 12px 16px;
+      border-bottom: 2px solid var(--border-color);
+    }
+
+    td {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border-color);
+      background-color: white;
+      vertical-align: top;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:hover td {
+      background-color: #f8fafc;
+    }
+
+    .lang-label {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 2px 6px;
+      border-radius: 4px;
+      display: inline-block;
+      margin-bottom: 4px;
+    }
+
+    .label-es { background-color: #fee2e2; color: #991b1b; }
+    .label-en { background-color: #e0f2fe; color: #075985; }
+    .label-ja-formal { background-color: #ecfdf5; color: #065f46; }
+    .label-ja-colloq { background-color: #fef3c7; color: #92400e; }
+
+    /* Mermaidグラフエリア */
+    .mermaid-container-wrapper {
+      background-color: #fafafa;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      min-height: 200px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: auto;
+    }
+
+    .mermaid {
+      background-color: transparent !important;
+      text-align: center;
+      width: 100%;
+    }
+
+    /* フィードバック解説 */
+    .feedback-content {
+      font-size: 14px;
+      color: var(--text-main);
+    }
+
+    .feedback-content p {
+      margin-bottom: 12px;
+    }
+
+    .feedback-content ul, .feedback-content ol {
+      margin-left: 20px;
+      margin-bottom: 12px;
+    }
+
+    .feedback-content li {
+      margin-bottom: 4px;
+    }
+
+    .feedback-content blockquote {
+      border-left: 4px solid var(--primary-light);
+      padding-left: 12px;
+      margin: 12px 0;
+      color: var(--text-muted);
+      font-style: italic;
+    }
+
+    /* ローディングオーバーレイ */
+    .loader-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(255, 255, 255, 0.8);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      gap: 16px;
+      z-index: 1000;
+      backdrop-filter: blur(4px);
+    }
+
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 5px solid var(--primary-soft);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 1s infinite linear;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .loader-text {
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--primary);
+    }
+
+    /* 音声波形 */
+    .waveform {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      height: 20px;
+    }
+
+    .waveform-bar {
+      width: 3px;
+      height: 5px;
+      background-color: var(--danger);
+      border-radius: 2px;
+      animation: wave 1s ease-in-out infinite;
+    }
+
+    .waveform-bar:nth-child(2) { animation-delay: 0.15s; }
+    .waveform-bar:nth-child(3) { animation-delay: 0.3s; }
+    .waveform-bar:nth-child(4) { animation-delay: 0.45s; }
+
+    @keyframes wave {
+      0%, 100% { height: 5px; }
+      50% { height: 20px; }
+    }
+
+    /* 練習判定バッジ */
+    .practice-eval-box {
+      display: none;
+      padding: 12px;
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      font-weight: 600;
+      text-align: center;
+      margin-top: 8px;
+    }
+
+    .practice-success { background-color: var(--secondary-soft); color: var(--secondary); border: 1px solid #99f6e4; }
+    .practice-retry { background-color: #fffbeb; color: #d97706; border: 1px solid #fef3c7; }
+
+    /* スマートフォン向けレスポンシブ対応 */
+    @media (max-width: 768px) {
+      header {
+        padding: 16px;
+      }
+      .header-title-area h1 {
+        font-size: 20px;
+      }
+      .stage-card {
+        padding: 16px;
+      }
+      .simulation-card, .card {
+        padding: 16px;
+      }
+      textarea {
+        height: 80px;
+      }
+      th, td {
+        padding: 8px 10px;
+        font-size: 12px;
+      }
+      .result-placeholder {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <!-- ヘッダー -->
+    <header>
+      <div class="header-title-area">
+        <h1><i data-lucide="heart-pulse"></i>医学日本語対話シミュレーター</h1>
+        <p>AIの日本語問いかけに多言語で答えて、臨床日本語へステップアップ</p>
+      </div>
+      <div class="badge-bolivia">
+        Bolivia 🇧🇴 ➔ 🇯🇵 Japan
+      </div>
+    </header>
+
+    <!-- 学習ステージ選択 -->
+    <div class="stage-section">
+      <div class="section-title">
+        <i data-lucide="graduation-cap"></i>
+        <span>学習ステージを選択してください</span>
+      </div>
+      <div class="stage-grid">
+        <div class="stage-card active" data-stage="1" onclick="selectStage('1')">
+          <span class="stage-badge stage-1-badge">Stage 1</span>
+          <h3>（１）病状の聴取</h3>
+          <p>患者が訴える主訴や症状を聴き取り、スペイン語、英語、または簡単な日本語で返答して、詳細な状況を引き出す練習をします。</p>
+        </div>
+        <div class="stage-card" data-stage="2" onclick="selectStage('2')">
+          <span class="stage-badge stage-2-badge">Stage 2</span>
+          <h3>（２）患者への説明</h3>
+          <p>検査説明、診断結果、治療方針（インフォームドコンセント）などを、患者にわかりやすい日本語で説明する練習をします。</p>
+        </div>
+        <div class="stage-card" data-stage="3" onclick="selectStage('3')">
+          <span class="stage-badge stage-3-badge">Stage 3</span>
+          <h3>（３）医師同士のコミュニケーション</h3>
+          <p>症例の申し送り、カンファレンスでの意見交換、他科への対診（コンサルテーション）など、医療従事者間での的確な報告と言葉遣いを学びます。</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 難易度・表示設定 -->
+    <div class="settings-panel">
+      <div class="settings-title">
+        <i data-lucide="settings"></i>
+        <span>問いかけ難易度設定</span>
+      </div>
+      <div class="toggle-container">
+        <span class="toggle-label">テキスト表示モード</span>
+        <label class="switch">
+          <input type="checkbox" id="mode-switch" checked onchange="toggleTextMode()">
+          <span class="slider"></span>
+        </label>
+        <span class="toggle-label" id="mode-status-text">テキストあり（初級）</span>
+      </div>
+    </div>
+
+    <!-- メインコンテンツ -->
+    <div class="workspace-grid">
+      
+      <!-- 左カラム: 対話シミュレーション -->
+      <div class="simulation-card">
+        <div class="card-title-badge">
+          <i data-lucide="activity"></i>
+          <span id="stage-title-text">Stage 1: 病状の聴取</span>
+        </div>
+
+        <div class="step-indicator">
+          <div class="step-node active" id="step-1-indicator"><i data-lucide="volume-2"></i>1. 聞く</div>
+          <div class="step-node" id="step-2-indicator"><i data-lucide="edit-3"></i>2. 答える</div>
+          <div class="step-node" id="step-3-indicator"><i data-lucide="award"></i>3. リピート練習</div>
+        </div>
+
+        <!-- 問いかけ開始ボタン (初期状態のみ表示) -->
+        <div id="start-simulation-box" style="text-align: center; padding: 20px 0;">
+          <button class="btn btn-primary" onclick="startNewQuestion()" style="font-size: 16px; padding: 14px 28px;">
+            <i data-lucide="play-circle"></i>
+            <span>シミュレーションを開始する</span>
+          </button>
+        </div>
+
+        <!-- AIからの問いかけ (初期は非表示) -->
+        <div id="question-area" style="display: none; flex-direction: column; gap: 16px;">
+          <div class="question-box">
+            <div class="question-scene" id="question-scene-text">場面説明</div>
+            
+            <!-- テキストありモード -->
+            <div class="question-text-display" id="question-text-display">ここにAIの日本語セリフが表示されます。</div>
+            
+            <!-- テキスト非表示（音声のみ）モード -->
+            <div class="question-text-hidden" id="question-text-hidden" style="display: none;">
+              <i data-lucide="volume-x" style="display: inline-block; vertical-align: middle; margin-right: 6px;"></i>
+              耳で聴き取ってください（テキストは隠されています）
+            </div>
+
+            <div class="question-actions">
+              <button class="btn btn-primary" onclick="speakQuestion()" style="padding: 8px 16px;">
+                <i data-lucide="volume-2"></i>
+                <span>問いかけを聴く</span>
+              </button>
+              <button class="btn btn-secondary" onclick="speakQuestion(0.8)" style="padding: 8px 12px; font-size: 12px;" title="ゆっくり再生">
+                <span>ゆっくり</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- スペイン語・英語ヒント (折りたたみ) -->
+          <div class="accordion">
+            <div class="accordion-header" onclick="toggleAccordion('hint-accordion')">
+              <span><i data-lucide="help-circle" style="width: 14px; height: 14px; display:inline-block; vertical-align:middle; margin-right: 4px;"></i>対訳ヒント (Traducción de Ayuda)</span>
+              <i data-lucide="chevron-down" id="accordion-chevron"></i>
+            </div>
+            <div class="accordion-content" id="hint-accordion">
+              <div><strong class="lang-label label-es">ES:</strong> <span id="hint-spanish-text">...</span></div>
+              <div><strong class="lang-label label-en">EN:</strong> <span id="hint-english-text">...</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 学習者の回答エリア (初期は非表示) -->
+        <div class="answer-box" id="answer-area" style="display: none;">
+          <label class="input-prompt-label" style="font-weight: 600;">
+            あなたの回答 (スペイン語、英語、日本語のどれでも回答OK):
+          </label>
+          
+          <div style="position: relative;">
+            <textarea id="user-response-input" placeholder="例: Me duele mucho la cabeza... / I have a fever... / 頭が痛いです。"></textarea>
+          </div>
+
+          <div style="display: flex; gap: 12px; align-items: center;">
+            <button class="btn btn-mic" id="answer-mic-btn" onclick="toggleAnswerRecognition()" title="マイクで話す">
+              <i data-lucide="mic" id="answer-mic-icon"></i>
+            </button>
+            <div class="waveform" id="answer-waveform" style="display: none;">
+              <div class="waveform-bar"></div>
+              <div class="waveform-bar"></div>
+              <div class="waveform-bar"></div>
+              <div class="waveform-bar"></div>
+            </div>
+            <button class="btn btn-primary" style="flex-grow: 1;" onclick="submitAnswer()">
+              <i data-lucide="send"></i>
+              <span>回答を送信する</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 日本語ステップアップ練習用（分析後に表示） -->
+        <div class="practice-box" id="practice-area" style="display: none;">
+          <div class="practice-title">
+            <i data-lucide="repeat"></i>
+            <span>Step 3: 正しい臨床日本語で発話（リピート）練習しましょう</span>
+          </div>
+          <div class="practice-phrase" id="practice-phrase-text">
+            臨床日本語表現
+          </div>
+          <div style="display: flex; gap: 10px; align-items: center; margin-top: 8px;">
+            <button class="btn btn-outline" onclick="speakPracticePhrase()">
+              <i data-lucide="volume-2"></i>
+              <span>お手本を聴く</span>
+            </button>
+            <button class="btn btn-mic" id="practice-mic-btn" onclick="togglePracticeRecognition()" title="マイクに向かって発音する">
+              <i data-lucide="mic" id="practice-mic-icon"></i>
+            </button>
+            <span style="font-size: 12px; color: var(--text-muted);">マイクを押して発音してください</span>
+          </div>
+
+          <div id="practice-feedback-box" class="practice-eval-box"></div>
+        </div>
+
+        <!-- 次の問題ボタン (分析後に表示) -->
+        <div id="next-action-box" style="display: none; justify-content: flex-end;">
+          <button class="btn btn-primary" onclick="startNewQuestion()">
+            <span>次の問題に進む</span>
+            <i data-lucide="arrow-right"></i>
+          </button>
+        </div>
+
+      </div>
+
+      <!-- 右カラム: 分析結果エリア -->
+      <div class="result-area">
+        
+        <!-- 初期プレースホルダー -->
+        <div class="result-placeholder" id="result-placeholder">
+          <i data-lucide="activity" style="width: 48px; height: 48px;"></i>
+          <h3>指導医のカルテ＆分析結果</h3>
+          <p>AIの問いかけに答えを送信すると、回答に応じた「対訳マトリクス」「臨床ワークフロー図」「詳細な日本語フィードバック」がここに生成されます。</p>
+        </div>
+
+        <!-- 結果表示用のコンテンツ（非表示） -->
+        <div id="result-content" style="display: none; flex-direction: column; gap: 24px;">
+          
+          <!-- 音声合成フィードバック -->
+          <div class="speech-player-box">
+            <div>
+              <div class="lang-label label-ja-formal">音声フィードバック</div>
+              <div class="speech-text-preview" id="speech-text-preview"></div>
+            </div>
+            <button class="btn-speak" id="speak-btn" onclick="toggleSpeechSynthesis()" title="音声を読み上げる">
+              <i data-lucide="play" id="speak-icon"></i>
+            </button>
+          </div>
+
+          <!-- 翻訳マトリクス -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">
+                <i data-lucide="languages"></i>
+                <span>医療用語・表現翻訳マトリクス</span>
+              </div>
+            </div>
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th><span class="lang-label label-es">西語 (Español)</span></th>
+                    <th><span class="lang-label label-en">英語 (English)</span></th>
+                    <th><span class="lang-label label-ja-formal">日本語 (フォーマル/カルテ)</span></th>
+                    <th><span class="lang-label label-ja-colloq">日本語 (臨床会話/日常)</span></th>
+                  </tr>
+                </thead>
+                <tbody id="matrix-tbody">
+                  <!-- JSで動的生成 -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- 臨床フロー図 -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">
+                <i data-lucide="git-fork"></i>
+                <span>臨床ワークフロー視覚化</span>
+              </div>
+            </div>
+            <div class="mermaid-container-wrapper">
+              <div id="mermaid-container"></div>
+            </div>
+          </div>
+
+          <!-- AIからの詳細フィードバック -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">
+                <i data-lucide="award"></i>
+                <span>指導医のアドバイス & 解説</span>
+              </div>
+            </div>
+            <div class="feedback-content" id="feedback-detail">
+              <!-- JSで動的生成 -->
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ローディングオーバーレイ -->
+  <div class="loader-overlay" id="loader">
+    <div class="spinner"></div>
+    <div class="loader-text" id="loader-text">AIが発話を分析中...</div>
+  </div>
+
+  <script>
+    // グローバルエラーハンドリング（デバッグ用）
+    window.onerror = function (message, url, lineNo, columnNo, error) {
+      alert('JavaScriptエラーを検出しました:\n' + message + '\n行: ' + lineNo + ', 列: ' + columnNo + '\nエラーオブジェクト: ' + (error ? error.stack : 'なし'));
+      return false;
+    };
+
+    // 状態管理
+    const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyQtIt9qnnPuDT-Hxci7ovPCUV27G-ZfbvUdCb_XYD9mJfOPBxn9Cf__urnEn7_bq0f5w/exec";
+    let currentStage = '1';
+    let isTextMode = true; // テキストありモード
+    let currentQuestion = null;
+    let answerRecognition = null;
+    let practiceRecognition = null;
+    let isAnswerRecording = false;
+    let isPracticeRecording = false;
+    let isSpeaking = false;
+    let speechUtterance = null;
+    let lastAnalysisResult = null;
+
+    // 初期化処理
+    window.addEventListener('DOMContentLoaded', () => {
+      try {
+        // Lucideアイコンの初期化
+        if (typeof lucide !== 'undefined') {
+          lucide.createIcons();
+        }
+
+        // Web Speech API 音声認識の初期化
+        initSpeechRecognition();
+
+        // Mermaidの初期化
+        if (typeof mermaid !== 'undefined') {
+          mermaid.initialize({
+            startOnLoad: false,
+            theme: 'neutral',
+            securityLevel: 'loose',
+            flowchart: { useMaxWidth: true, htmlLabels: true, curve: 'basis' }
+          });
+        }
+      } catch (err) {
+        console.error('Initialization error:', err);
+      }
+    });
+
+    // ステージ選択処理
+    function selectStage(stage) {
+      currentStage = stage;
+      
+      // カードの選択状態の更新
+      document.querySelectorAll('.stage-card').forEach(card => {
+        card.classList.remove('active');
+      });
+      document.querySelector(`.stage-card[data-stage="${stage}"]`).classList.add('active');
+
+      const stageNames = { '1': 'Stage 1: 病状の聴取', '2': 'Stage 2: 患者への説明', '3': 'Stage 3: 医師同士のコミュニケーション' };
+      document.getElementById('stage-title-text').innerText = stageNames[stage];
+
+      // シミュレーション状態のリセット
+      resetSimulationUI();
+    }
+
+    // 難易度（テキストモード）のトグル
+    function toggleTextMode() {
+      isTextMode = document.getElementById('mode-switch').checked;
+      const statusText = document.getElementById('mode-status-text');
+      
+      if (isTextMode) {
+        statusText.innerText = 'テキストあり（初級）';
+        if (currentQuestion) {
+          document.getElementById('question-text-display').style.display = 'block';
+          document.getElementById('question-text-hidden').style.display = 'none';
+        }
+      } else {
+        statusText.innerText = '音声のみ（上級）';
+        if (currentQuestion) {
+          document.getElementById('question-text-display').style.display = 'none';
+          document.getElementById('question-text-hidden').style.display = 'block';
+        }
+      }
+    }
+
+    // シミュレーション状態のリセット
+    function resetSimulationUI() {
+      currentQuestion = null;
+      document.getElementById('start-simulation-box').style.display = 'block';
+      document.getElementById('question-area').style.display = 'none';
+      document.getElementById('answer-area').style.display = 'none';
+      document.getElementById('practice-area').style.display = 'none';
+      document.getElementById('next-action-box').style.display = 'none';
+      
+      // 結果エリアのプレースホルダー表示
+      document.getElementById('result-placeholder').style.display = 'flex';
+      document.getElementById('result-content').style.display = 'none';
+
+      // インジケーターのリセット
+      setStepActive(1);
+    }
+
+    // インジケーターの状態変更
+    function setStepActive(stepNumber) {
+      document.querySelectorAll('.step-node').forEach(node => node.classList.remove('active'));
+      const targetIndicator = document.getElementById(`step-${stepNumber}-indicator`);
+      if (targetIndicator) {
+        targetIndicator.classList.add('active');
+      }
+    }
+
+    // 1. 問いかけ（問題）の生成
+    async function startNewQuestion() {
+      // 読み上げ中なら停止
+      if (isSpeaking) {
+        if (window.speechSynthesis) {
+          window.speechSynthesis.cancel();
+        }
+        isSpeaking = false;
+        updateLucideIcon('speak-icon', 'play');
+      }
+
+      showLoader(true, '問題となる問いかけを生成中...');
+      
+      // 入力初期化
+      document.getElementById('user-response-input').value = '';
+      document.getElementById('practice-feedback-box').style.display = 'none';
+      document.getElementById('practice-area').style.display = 'none';
+      document.getElementById('next-action-box').style.display = 'none';
+
+      if (GAS_WEB_APP_URL.includes('ここにGASのWebアプリURL')) {
+        showLoader(false);
+        alert('【初期設定エラー】\nGAS_WEB_APP_URL が設定されていません。\nHTMLファイルの1140行目付近にあるURLを、GASでデプロイしたWebアプリURLに書き換えてください。');
+        return;
+      }
+
+      try {
+        const response = await fetch(GAS_WEB_APP_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain' },
+          body: JSON.stringify({ action: 'generateQuestion', stage: currentStage })
+        });
+        if (!response.ok) throw new Error('Network response was not ok');
+        const data = await response.json();
+        onQuestionGenerated(data);
+      } catch (error) {
+        onQuestionFailure(error);
+      }
+    }
+
+    // 問いかけ生成成功コールバック
+    function onQuestionGenerated(response) {
+      showLoader(false);
+      if (!response.success) {
+        alert('問いかけ生成エラー: ' + response.error);
+        return;
+      }
+
+      currentQuestion = response.data;
+
+      // 画面更新
+      document.getElementById('start-simulation-box').style.display = 'none';
+      document.getElementById('question-area').style.display = 'flex';
+      document.getElementById('answer-area').style.display = 'flex';
+
+      // 場面説明と問いかけテキスト設定
+      document.getElementById('question-scene-text').innerText = '場面: ' + currentQuestion.context_description;
+      document.getElementById('question-text-display').innerText = currentQuestion.question_text;
+      
+      // 対訳ヒント設定
+      document.getElementById('hint-spanish-text').innerText = currentQuestion.hint_spanish;
+      document.getElementById('hint-english-text').innerText = currentQuestion.hint_english;
+
+      // アコーディオンヒントを閉じておく
+      document.getElementById('hint-accordion').classList.remove('show');
+      updateLucideIcon('accordion-chevron', 'chevron-down');
+
+      // テキスト表示設定の適用
+      toggleTextMode();
+
+      // インジケーターを「答える」にする
+      setStepActive(2);
+
+      // 自動で問いかけを音声再生
+      speakQuestion();
+    }
+
+    function onQuestionFailure(error) {
+      showLoader(false);
+      alert('GAS通信エラー（問いかけ生成）: ' + error.toString());
+    }
+
+    // 問いかけを読み上げる
+    function speakQuestion(rate = 1.0) {
+      if (!currentQuestion || !window.speechSynthesis) return;
+
+      window.speechSynthesis.cancel(); // 前の音声をクリア
+
+      const utterance = new SpeechSynthesisUtterance(currentQuestion.question_text);
+      utterance.lang = 'ja-JP';
+      utterance.rate = rate; // 速度調整（ゆっくりモード対応）
+
+      const voices = window.speechSynthesis.getVoices();
+      const jaVoice = voices.find(voice => voice.lang === 'ja-JP' || voice.lang.includes('ja'));
+      if (jaVoice) {
+        utterance.voice = jaVoice;
+      }
+
+      window.speechSynthesis.speak(utterance);
+    }
+
+    // 2. 回答を送信して分析
+    async function submitAnswer() {
+      const userResponse = document.getElementById('user-response-input').value.trim();
+      if (!userResponse) {
+        alert('回答を入力またはマイクで発話してください。');
+        return;
+      }
+
+      if (GAS_WEB_APP_URL.includes('ここにGASのWebアプリURL')) {
+        alert('エラー: GAS_WEB_APP_URLが設定されていません。');
+        return;
+      }
+
+      showLoader(true, '回答を分析中...');
+
+      try {
+        const response = await fetch(GAS_WEB_APP_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain' },
+          body: JSON.stringify({
+            action: 'analyzeResponse',
+            stage: currentStage,
+            questionText: currentQuestion.question_text,
+            userResponse: userResponse
+          })
+        });
+        if (!response.ok) throw new Error('Network response was not ok');
+        const data = await response.json();
+        onAnswerAnalyzed(data);
+      } catch (error) {
+        onAnswerAnalysisFailure(error);
+      }
+    }
+
+    // 回答分析成功コールバック
+    function onAnswerAnalyzed(response) {
+      showLoader(false);
+      if (!response.success) {
+        alert('分析エラー: ' + response.error);
+        return;
+      }
+
+      const result = response.data;
+      lastAnalysisResult = result;
+
+      // 結果エリアの描画
+      document.getElementById('result-placeholder').style.display = 'none';
+      const resultContent = document.getElementById('result-content');
+      resultContent.style.display = 'flex';
+
+      // 1. 音声テキストのプレビュー更新
+      document.getElementById('speech-text-preview').innerText = result.speech_text;
+
+      // 2. 対訳マトリクスの描画
+      const tbody = document.getElementById('matrix-tbody');
+      tbody.innerHTML = '';
+      if (result.matrix && result.matrix.length > 0) {
+        result.matrix.forEach(item => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td><strong>${escapeHtml(item.spanish)}</strong></td>
+            <td>${escapeHtml(item.english)}</td>
+            <td><span style="font-weight: 500; color: var(--primary);">${escapeHtml(item.japanese_formal)}</span></td>
+            <td><span style="font-weight: 500; color: var(--secondary);">${escapeHtml(item.japanese_colloquial)}</span></td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }
+
+      // 3. Mermaidグラフの描画
+      renderMermaidChart(result.mermaid_graph);
+
+      // 4. フィードバック解説（Markdown）
+      if (typeof marked !== 'undefined') {
+        document.getElementById('feedback-detail').innerHTML = marked.parse(result.feedback);
+      } else {
+        document.getElementById('feedback-detail').innerText = result.feedback;
+      }
+
+      // 5. ステップアップ練習エリアの表示と初期化
+      document.getElementById('practice-phrase-text').innerText = result.suggested_japanese_practice;
+      document.getElementById('practice-area').style.display = 'flex';
+      document.getElementById('next-action-box').style.display = 'flex';
+
+      // インジケーターを「リピート練習」にする
+      setStepActive(3);
+
+      // AI解説音声を自動再生
+      toggleSpeechSynthesis();
+    }
+
+    function onAnswerAnalysisFailure(error) {
+      showLoader(false);
+      alert('GAS通信エラー（回答分析）: ' + error.toString());
+    }
+
+    // 3. ステップアップ練習：お手本の読み上げ
+    function speakPracticePhrase() {
+      if (!lastAnalysisResult || !window.speechSynthesis) return;
+
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(lastAnalysisResult.suggested_japanese_practice);
+      utterance.lang = 'ja-JP';
+
+      const voices = window.speechSynthesis.getVoices();
+      const jaVoice = voices.find(voice => voice.lang === 'ja-JP' || voice.lang.includes('ja'));
+      if (jaVoice) utterance.voice = jaVoice;
+
+      window.speechSynthesis.speak(utterance);
+    }
+
+    // 自分で発音した練習テキストの文字レベル簡易判定
+    function evaluateSpeechPractice(spokenText) {
+      const targetText = lastAnalysisResult.suggested_japanese_practice.replace(/[、。？\s]/g, '');
+      const cleanedSpoken = spokenText.replace(/[、。？\s]/g, '');
+      
+      const evalBox = document.getElementById('practice-feedback-box');
+      evalBox.style.display = 'block';
+      
+      // 完全一致、部分一致の判定
+      if (cleanedSpoken === targetText) {
+        evalBox.className = 'practice-eval-box practice-success';
+        evalBox.innerHTML = `<i data-lucide="check-circle" style="display:inline-block; vertical-align:middle; width: 16px; height: 16px; margin-right:4px;"></i>
+          <strong>素晴らしい発音です！</strong> お手本通りに正しく発音できています。`;
+      } else if (targetText.includes(cleanedSpoken) || cleanedSpoken.includes(targetText) || getSimilarity(cleanedSpoken, targetText) > 0.6) {
+        evalBox.className = 'practice-eval-box practice-success';
+        evalBox.innerHTML = `<i data-lucide="check-circle" style="display:inline-block; vertical-align:middle; width: 16px; height: 16px; margin-right:4px;"></i>
+          <strong>ほぼ聞き取れました！</strong> 発音:「${spokenText}」<br>
+          日本の臨床現場で十分通じるレベルです。さらに練習してみましょう！`;
+      } else {
+        evalBox.className = 'practice-eval-box practice-retry';
+        evalBox.innerHTML = `<i data-lucide="help-circle" style="display:inline-block; vertical-align:middle; width: 16px; height: 16px; margin-right:4px;"></i>
+          認識された発音:「${spokenText}」<br>
+          もう少しお手本に近づけてみましょう。もう一度マイクボタンを押して発音してください。`;
+      }
+      if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+      }
+    }
+
+    // 編集距離に基づく類似度計算
+    function getSimilarity(s1, s2) {
+      let longer = s1;
+      let shorter = s2;
+      if (s1.length < s2.length) {
+        longer = s2;
+        shorter = s1;
+      }
+      let longerLength = longer.length;
+      if (longerLength === 0) {
+        return 1.0;
+      }
+      return (longerLength - editDistance(longer, shorter)) / parseFloat(longerLength);
+    }
+
+    function editDistance(s1, s2) {
+      s1 = s1.toLowerCase();
+      s2 = s2.toLowerCase();
+      let costs = new Array();
+      for (let i = 0; i <= s1.length; i++) {
+        let lastValue = i;
+        for (let j = 0; j <= s2.length; j++) {
+          if (i == 0) {
+            costs[j] = j;
+          } else {
+            if (j > 0) {
+              let newValue = costs[j - 1];
+              if (s1.charAt(i - 1) != s2.charAt(j - 1)) {
+                newValue = Math.min(Math.min(newValue, lastValue), costs[j]) + 1;
+              }
+              costs[j - 1] = lastValue;
+              lastValue = newValue;
+            }
+          }
+        }
+        if (i > 0) costs[s2.length] = lastValue;
+      }
+      return costs[s2.length];
+    }
+
+    // 音声認識のエラー共通ハンドラー
+    function handleRecognitionError(error, type) {
+      console.warn('Speech Recognition Error (' + type + '):', error);
+      let msg = '音声認識中にエラーが発生しました。';
+      if (error === 'not-allowed') {
+        msg = 'マイクの使用権限が許可されていません。ブラウザの設定からマイクアクセスを許可してください。\n※Google Apps Script Webアプリをフレーム内で実行している場合、ブラウザのアドレスバー右上のマイクアイコンから許可が必要な場合があります。';
+      } else if (error === 'no-speech') {
+        msg = '音声が検出されませんでした。マイクに近づいてはっきりと話しかけてください。';
+      } else if (error === 'network') {
+        msg = '音声認識に必要なネットワーク接続に問題があります。インターネット接続を確認してください。';
+      } else if (error === 'aborted') {
+        // 意図的な停止なのでアラートは出さない
+        return;
+      } else {
+        msg += ' (詳細: ' + error + ')';
+      }
+      alert(msg);
+      
+      // UI状態をクリアする
+      if (type === 'answer') {
+        isAnswerRecording = false;
+        document.getElementById('answer-mic-btn').classList.remove('recording');
+        document.getElementById('answer-waveform').style.display = 'none';
+        updateLucideIcon('answer-mic-icon', 'mic');
+      } else if (type === 'practice') {
+        isPracticeRecording = false;
+        document.getElementById('practice-mic-btn').classList.remove('recording');
+        updateLucideIcon('practice-mic-icon', 'mic');
+      }
+    }
+
+    // 音声認識の初期化
+    function initSpeechRecognition() {
+      console.log('initSpeechRecognition called');
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        console.warn('このブラウザは音声認識 (Web Speech API) をサポートしていません。');
+        document.getElementById('answer-mic-btn').style.display = 'none';
+        document.getElementById('practice-mic-btn').style.display = 'none';
+        return;
+      }
+
+      // 回答用音声認識
+      answerRecognition = new SpeechRecognition();
+      answerRecognition.lang = 'ja-JP';
+      answerRecognition.interimResults = false;
+      answerRecognition.maxAlternatives = 1;
+
+      answerRecognition.onstart = () => {
+        console.log('answerRecognition started');
+        isAnswerRecording = true;
+        document.getElementById('answer-mic-btn').classList.add('recording');
+        document.getElementById('answer-waveform').style.display = 'flex';
+        updateLucideIcon('answer-mic-icon', 'mic-off');
+      };
+
+      answerRecognition.onerror = (event) => {
+        handleRecognitionError(event.error, 'answer');
+      };
+
+      answerRecognition.onend = () => {
+        console.log('answerRecognition ended');
+        isAnswerRecording = false;
+        document.getElementById('answer-mic-btn').classList.remove('recording');
+        document.getElementById('answer-waveform').style.display = 'none';
+        updateLucideIcon('answer-mic-icon', 'mic');
+      };
+
+      answerRecognition.onresult = (event) => {
+        const text = event.results[0][0].transcript;
+        console.log('answerRecognition result:', text);
+        const inputArea = document.getElementById('user-response-input');
+        if (inputArea.value) {
+          inputArea.value += ' ' + text;
+        } else {
+          inputArea.value = text;
+        }
+      };
+
+      // 練習用音声認識
+      practiceRecognition = new SpeechRecognition();
+      practiceRecognition.lang = 'ja-JP';
+      practiceRecognition.interimResults = false;
+      
+      practiceRecognition.onstart = () => {
+        console.log('practiceRecognition started');
+        isPracticeRecording = true;
+        document.getElementById('practice-mic-btn').classList.add('recording');
+        updateLucideIcon('practice-mic-icon', 'mic-off');
+      };
+
+      practiceRecognition.onerror = (event) => {
+        handleRecognitionError(event.error, 'practice');
+      };
+
+      practiceRecognition.onend = () => {
+        console.log('practiceRecognition ended');
+        isPracticeRecording = false;
+        document.getElementById('practice-mic-btn').classList.remove('recording');
+        updateLucideIcon('practice-mic-icon', 'mic');
+      };
+
+      practiceRecognition.onresult = (event) => {
+        const text = event.results[0][0].transcript;
+        console.log('practiceRecognition result:', text);
+        evaluateSpeechPractice(text);
+      };
+    }
+
+    function toggleAnswerRecognition() {
+      console.log('toggleAnswerRecognition called');
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        alert('このブラウザは音声認識 (Web Speech API) をサポートしていません。Google Chromeなどの対応ブラウザを使用してください。');
+        return;
+      }
+
+      if (isAnswerRecording) {
+        if (answerRecognition) {
+          answerRecognition.stop();
+        }
+        return;
+      }
+
+      if (!answerRecognition) {
+        initSpeechRecognition();
+      }
+
+      try {
+        answerRecognition.lang = 'ja-JP';
+        answerRecognition.start();
+      } catch (err) {
+        console.error('Answer Speech recognition start failed:', err);
+        alert('音声認識の開始に失敗しました。もう一度やり直してください。');
+      }
+    }
+
+    function togglePracticeRecognition() {
+      console.log('togglePracticeRecognition called');
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        alert('このブラウザは音声認識 (Web Speech API) をサポートしていません。Google Chromeなどの対応ブラウザを使用してください。');
+        return;
+      }
+
+      if (isPracticeRecording) {
+        if (practiceRecognition) {
+          practiceRecognition.stop();
+        }
+        return;
+      }
+
+      if (!practiceRecognition) {
+        initSpeechRecognition();
+      }
+
+      try {
+        practiceRecognition.start();
+      } catch (err) {
+        console.error('Practice Speech recognition start failed:', err);
+        alert('音声認識の開始に失敗しました。もう一度やり直してください。');
+      }
+    }
+
+    // AIの解説フィードバック音声の再生・停止
+    function toggleSpeechSynthesis() {
+      if (!window.speechSynthesis || !lastAnalysisResult) return;
+
+      if (isSpeaking) {
+        window.speechSynthesis.cancel();
+        isSpeaking = false;
+        updateLucideIcon('speak-icon', 'play');
+        document.getElementById('speak-btn').classList.remove('playing');
+      } else {
+        const text = lastAnalysisResult.speech_text;
+        if (!text) return;
+
+        speechUtterance = new SpeechSynthesisUtterance(text);
+        speechUtterance.lang = 'ja-JP';
+        
+        const voices = window.speechSynthesis.getVoices();
+        const jaVoice = voices.find(voice => voice.lang === 'ja-JP' || voice.lang.includes('ja'));
+        if (jaVoice) speechUtterance.voice = jaVoice;
+
+        speechUtterance.onend = () => {
+          isSpeaking = false;
+          updateLucideIcon('speak-icon', 'play');
+          document.getElementById('speak-btn').classList.remove('playing');
+        };
+
+        isSpeaking = true;
+        updateLucideIcon('speak-icon', 'square');
+        document.getElementById('speak-btn').classList.add('playing');
+        window.speechSynthesis.speak(speechUtterance);
+      }
+    }
+
+    // Mermaidグラフの安全なレンダリング
+    function renderMermaidChart(mermaidCode) {
+      const container = document.getElementById('mermaid-container');
+      container.innerHTML = '';
+      
+      if (!mermaidCode || mermaidCode.trim() === '') {
+        container.innerHTML = '<span style="color: var(--text-muted); font-size: 13px;">ワークフロー図は利用できません。</span>';
+        return;
+      }
+
+      try {
+        let cleanCode = mermaidCode.trim();
+        if (cleanCode.startsWith('```')) {
+          cleanCode = cleanCode.replace(/^```mermaid\s*/, '').replace(/```$/, '');
+        }
+        
+        const uniqueId = 'mermaid-' + Math.floor(Math.random() * 100000);
+        container.removeAttribute('data-processed');
+        container.innerHTML = `<pre class="mermaid" id="${uniqueId}">${cleanCode}</pre>`;
+        
+        if (typeof mermaid !== 'undefined') {
+          mermaid.run({
+            nodes: [document.getElementById(uniqueId)]
+          });
+        }
+      } catch (err) {
+        console.error('Mermaid render error:', err);
+        container.innerHTML = `
+          <div style="text-align: center; color: var(--danger); font-size: 13px;">
+            <i data-lucide="alert-triangle" style="display:inline-block; vertical-align:middle; width: 16px; height: 16px; margin-right:4px;"></i>
+            ワークフロー図のレンダリング中にエラーが発生しました。
+          </div>`;
+        if (typeof lucide !== 'undefined') {
+          lucide.createIcons();
+        }
+      }
+    }
+
+    // アコーディオンの開閉
+    function toggleAccordion(id) {
+      const content = document.getElementById(id);
+      const chevron = document.getElementById('accordion-chevron');
+      
+      if (content.classList.contains('show')) {
+        content.classList.remove('show');
+        updateLucideIcon('accordion-chevron', 'chevron-down');
+      } else {
+        content.classList.add('show');
+        updateLucideIcon('accordion-chevron', 'chevron-up');
+      }
+    }
+
+    // ローディングの表示・非表示
+    function showLoader(show, text = '処理中...') {
+      const loader = document.getElementById('loader');
+      const loaderText = document.getElementById('loader-text');
+      if (loader && loaderText) {
+        if (show) {
+          loaderText.innerText = text;
+          loader.style.display = 'flex';
+        } else {
+          loader.style.display = 'none';
+        }
+      }
+    }
+
+    // Lucideアイコンの動的変更ヘルパー
+    function updateLucideIcon(elementId, iconName) {
+      const element = document.getElementById(elementId);
+      if (element) {
+        element.setAttribute('data-lucide', iconName);
+        if (typeof lucide !== 'undefined') {
+          lucide.createIcons();
+        }
+      }
+    }
+
+    // HTMLエスケープ
+    function escapeHtml(string) {
+      if (typeof string !== 'string') return string;
+      return string.replace(/[&<>"']/g, function(match) {
+        const escapeMap = {
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          '"': '&quot;',
+          "'": '&#039;'
+        };
+        return escapeMap[match];
+      });
+    }
+  </script>
+</body>
+</html>
